@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure Password Generator</title>
+    <style>
+        /* Reset and base styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 500px;
+        }
+        
+        .card {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            width: 100%;
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #2d3748;
+            font-weight: 600;
+        }
+        
+        .password-display {
+            position: relative;
+            margin-bottom: 25px;
+        }
+        
+        #password {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 500;
+            color: #2d3748;
+            background-color: #f8fafc;
+            transition: all 0.3s;
+        }
+        
+        #password:focus {
+            outline: none;
+            border-color: #4299e1;
+            box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.2);
+        }
+        
+        .copy-btn {
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #718096;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 4px;
+            transition: all 0.3s;
+        }
+        
+        .copy-btn:hover {
+            color: #4299e1;
+            background-color: #ebf4ff;
+        }
+        
+        .copy-btn.copied {
+            color: #38a169;
+        }
+        
+        .options {
+            margin-bottom: 30px;
+        }
+        
+        .option-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 500;
+            color: #4a5568;
+        }
+        
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        #length {
+            width: 100%;
+            height: 8px;
+            -webkit-appearance: none;
+            appearance: none;
+            background: #e2e8f0;
+            border-radius: 4px;
+            outline: none;
+        }
+        
+        #length::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #4299e1;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        #length::-webkit-slider-thumb:hover {
+            background: #3182ce;
+            transform: scale(1.1);
+        }
+        
+        #length-value {
+            font-weight: 600;
+            color: #4299e1;
+            min-width: 30px;
+            text-align: center;
+        }
+        
+        .checkbox-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .checkbox-container input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: #4299e1;
+            cursor: pointer;
+        }
+        
+        .checkbox-container label {
+            margin-bottom: 0;
+            cursor: pointer;
+            user-select: none;
+        }
+        
+        .generate-btn {
+            width: 100%;
+            padding: 15px;
+            background-color: #4299e1;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 6px rgba(66, 153, 225, 0.3);
+        }
+        
+        .generate-btn:hover {
+            background-color: #3182ce;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(66, 153, 225, 0.4);
+        }
+        
+        .generate-btn:active {
+            transform: translateY(0);
+        }
+        
+        .strength-meter {
+            height: 6px;
+            background-color: #e2e8f0;
+            border-radius: 3px;
+            margin-top: 15px;
+            overflow: hidden;
+        }
+        
+        .strength-fill {
+            height: 100%;
+            width: 0%;
+            transition: width 0.5s ease;
+            border-radius: 3px;
+        }
+        
+        .strength-text {
+            text-align: right;
+            font-size: 14px;
+            margin-top: 5px;
+            color: #718096;
+        }
+        
+        @media (max-width: 576px) {
+            .card {
+                padding: 20px;
+            }
+            
+            .checkbox-group {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <h1>Password Generator</h1>
+            
+            <div class="password-display">
+                <input type="text" id="password" readonly placeholder="Your password will appear here">
+                <button class="copy-btn" id="copy-button" title="Copy to clipboard">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+                        <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
+                    </svg>
+                </button>
+            </div>
+            
+            <div class="options">
+                <div class="option-group">
+                    <label for="length">Password Length: <span id="length-value">16</span></label>
+                    <div class="slider-container">
+                        <input type="range" id="length" min="4" max="32" value="16">
+                    </div>
+                </div>
+                
+                <div class="option-group">
+                    <label>Include:</label>
+                    <div class="checkbox-group">
+                        <div class="checkbox-container">
+                            <input type="checkbox" id="uppercase" checked>
+                            <label for="uppercase">Uppercase (A-Z)</label>
+                        </div>
+                        <div class="checkbox-container">
+                            <input type="checkbox" id="lowercase" checked>
+                            <label for="lowercase">Lowercase (a-z)</label>
+                        </div>
+                        <div class="checkbox-container">
+                            <input type="checkbox" id="numbers" checked>
+                            <label for="numbers">Numbers (0-9)</label>
+                        </div>
+                        <div class="checkbox-container">
+                            <input type="checkbox" id="symbols">
+                            <label for="symbols">Symbols (!@#$...)</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="strength-meter">
+                    <div class="strength-fill" id="strength-fill"></div>
+                </div>
+                <div class="strength-text" id="strength-text">Password strength: -</div>
+            </div>
+            
+            <button class="generate-btn" id="generate">Generate Password</button>
+        </div>
+    </div>
+
+<script src="cd.js"></script>
+
+
+    </body>
+</html>
